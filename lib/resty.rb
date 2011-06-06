@@ -1,3 +1,5 @@
+require 'rest-client'
+
 class Resty
   
   def initialize(attributes)
@@ -31,4 +33,6 @@ class Resty
 
 end
 
-require File.join(File.dirname(__FILE__), 'resty', 'attributes')
+%w(attributes transport).each do |f|
+  require File.join(File.dirname(__FILE__), 'resty', f)
+end

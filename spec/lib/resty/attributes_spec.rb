@@ -32,20 +32,38 @@ describe Resty::Attributes do
 
   describe "[]" do
 
-    subject { Resty::Attributes.new('bob' => 'biscuits') }
+    context "populated" do
+      subject { Resty::Attributes.new('bob' => 'biscuits') }
 
-    it "should return nil for unknown attribute" do
-      subject['fred'].should be_nil
-    end    
+      it "should return nil for unknown attribute" do
+        subject['fred'].should be_nil
+      end    
 
-    it "should return known attribute" do
-      subject['bob'].should == 'biscuits'
-    end    
+      it "should return known attribute" do
+        subject['bob'].should == 'biscuits'
+      end    
 
-    it "should wrap the result" do
-      Resty.should_receive(:wrap).with('biscuits')
-      subject['bob']
+      it "should wrap the result" do
+        Resty.should_receive(:wrap).with('biscuits')
+        subject['bob']
+      end
     end
+
+    context "unpopulated" do
+      let(:output) do
+        {
+          ':href' => 'http://bob.com',
+          'name' => 'fred'
+        }
+      end
+      subject { Resty::Attributes.new(':href' => output[':href']) }
+      before { Resty::Transport.stub!(:load_json => output) }
+
+      it "should populate from the href" do
+        subject['name'].should == 'fred'
+      end
+    end
+    
 
   end
 
