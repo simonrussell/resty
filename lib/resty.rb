@@ -1,0 +1,3 @@
+class Resty
+  
+end
