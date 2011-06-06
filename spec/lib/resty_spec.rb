@@ -45,4 +45,24 @@ describe Resty do
 
   end
 
+  context "big picture" do
+
+    subject do
+      Resty.from(
+        ':href' => 'http://blah.blab/bob/123',
+        'name' => 'Bob Bobbington',
+        'address' => {
+          'street' => 'Fish St'
+        },
+        'company' => {
+          ':href' => 'http://company.company'
+        }
+      )
+    end
+
+    it "should work nested" do
+      subject.address.street.should == 'Fish St'
+    end
+  end
+
 end
