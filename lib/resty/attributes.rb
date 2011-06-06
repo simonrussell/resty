@@ -1,6 +1,9 @@
 class Resty::Attributes
 
+  attr_reader :href
+
   def initialize(data)
+    @href = data[':href']
     @data = data
   end
 

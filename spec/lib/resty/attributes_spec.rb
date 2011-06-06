@@ -2,6 +2,20 @@ require 'spec_helper'
 
 describe Resty::Attributes do
 
+  describe "#href" do
+
+    context "with href supplied" do
+      subject { Resty::Attributes.new(':href' => 'blah') }
+      its(:href) { should == 'blah' }
+    end
+
+    context "without href supplied" do
+      subject { Resty::Attributes.new({}) }
+      its(:href) { should be_nil }
+    end
+
+  end
+
   describe "#key?" do
 
     subject { Resty::Attributes.new('bob' => 'biscuits') }
