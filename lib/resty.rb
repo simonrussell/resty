@@ -15,9 +15,18 @@ class Resty
       super
     end
   end
-  
+
+  def self.from(data)
+    new(Resty::Attributes.new(data))
+  end  
+
   def self.wrap(object)
-    object
+    case object
+    when Hash
+      from(object)
+    else
+      object
+    end
   end
 
 end

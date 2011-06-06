@@ -25,4 +25,24 @@ describe Resty do
 
   end
 
+  describe "::from" do
+    it "should create attributes etc" do
+      Resty.from(':href' => 'blah').should be_a(Resty)
+    end
+  end
+
+  describe "::wrap" do
+    
+    ["string", 0, nil, true, false].each do |input|
+      it "should return #{input.to_json} as itself" do
+        Resty.wrap(input).should eql(input)
+      end
+    end
+
+    it "should wrap object into a Resty" do
+      Resty.wrap({}).should be_a(Resty)
+    end
+
+  end
+
 end
