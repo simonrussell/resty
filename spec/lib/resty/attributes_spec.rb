@@ -42,6 +42,11 @@ describe Resty::Attributes do
       subject['bob'].should == 'biscuits'
     end    
 
+    it "should wrap the result" do
+      Resty.should_receive(:wrap).with('biscuits')
+      subject['bob']
+    end
+
   end
 
 end

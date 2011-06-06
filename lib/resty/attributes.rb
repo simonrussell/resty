@@ -12,7 +12,7 @@ class Resty::Attributes
   end
 
   def [](name)
-    @data[name]
+    Resty.wrap(@data[name])
   end
 
 end

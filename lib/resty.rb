@@ -16,6 +16,10 @@ class Resty
     end
   end
   
+  def self.wrap(object)
+    object
+  end
+
 end
 
 require File.join(File.dirname(__FILE__), 'resty', 'attributes')
