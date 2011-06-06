@@ -31,6 +31,8 @@ class Resty
     case object
     when Hash
       from(object)
+    when Array
+      from(':items' => object)
     else
       object
     end

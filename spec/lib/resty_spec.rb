@@ -43,6 +43,10 @@ describe Resty do
       Resty.wrap({}).should be_a(Resty)
     end
 
+    it "should wrap array into a Resty" do
+      Resty.wrap([]).should be_a(Resty)
+    end
+
   end
 
   context "big picture" do
