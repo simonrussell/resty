@@ -1,9 +1,14 @@
 require 'rest-client'
+require 'json'
 
 class Resty
   
   def initialize(attributes)
     @attributes = attributes
+  end
+
+  def _populated_data
+    @attributes.populated_data
   end
 
   def respond_to_missing?(name, include_private)
@@ -20,7 +25,7 @@ class Resty
 
   def self.from(data)
     new(Resty::Attributes.new(data))
-  end  
+  end
 
   def self.wrap(object)
     case object
@@ -29,6 +34,10 @@ class Resty
     else
       object
     end
+  end
+
+  def self.href(href)
+    from(':href' => href)
   end
 
 end

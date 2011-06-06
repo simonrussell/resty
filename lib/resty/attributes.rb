@@ -22,10 +22,14 @@ class Resty::Attributes
     @populated
   end
 
-  private
-
   def populate!
     @data = Resty::Transport.load_json(@href)
+    @populated = true
+  end
+
+  def populated_data
+    populate!
+    @data
   end
 
 end

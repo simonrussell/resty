@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+require File.join(File.expand_path(File.dirname(__FILE__)), '../lib/resty')
+
+if ARGV.length < 1
+  $stderr.puts "usage: #{$0} <resource-url>"
+  exit 1
+end
+
+href = ARGV.first
+
+puts JSON.pretty_generate(Resty.href(href)._populated_data)
