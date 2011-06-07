@@ -24,7 +24,28 @@ describe Resty do
     end
 
   end
+  
+  describe "action methods" do
+  
+    subject { Resty.from(':actions' => { 'bake' => { ':href' => 'http://blah.blah/bake', ':method' => 'POST' } }) }
+    before { Resty::Transport.stub(:request_json) }
+    
+    it "should respond to known action" do
+      Resty::Transport.should_receive(:request_json).with('http://blah.blah/bake', 'POST', nil, nil)
+      subject.bake!
+    end
+    
+    it "should respond to known action" do
+      Resty::Transport.should_receive(:request_json).with('http://blah.blah/bake', 'POST', { name: 123 }.to_json, 'application/json')
+      subject.bake!(name: 123)
+    end
 
+    it "should raise NoMethodError on unknown action" do
+      lambda { subject.fry! }.should raise_error(NoMethodError)
+    end
+    
+  end
+  
   describe "::from" do
     it "should create attributes etc" do
       Resty.from(':href' => 'blah').should be_a(Resty)
@@ -59,13 +80,23 @@ describe Resty do
           'street' => 'Fish St'
         },
         'company' => {
-          ':href' => 'http://company.company'
+          ':href' => 'http://company.company',
+          ':actions' => { 
+            'rename' => {
+              ':href' => 'http://company.company/rename',
+              ':method' => 'POST'
+            }
+          }
         }
       )
     end
 
     it "should work nested" do
       subject.address.street.should == 'Fish St'
+    end
+    
+    xit "should have actions that work" do
+      subject.company.rename!
     end
   end
 

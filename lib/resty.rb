@@ -15,8 +15,14 @@ class Resty
     @attributes.key?(name.to_s)
   end
 
-  def method_missing(name)
-    if @attributes.key?(name.to_s)
+  def method_missing(name, *args)
+    if name =~ /^(.+)!$/
+      if @attributes.actions.exist?($1)
+        @attributes.actions.perform!($1, *args)
+      else
+        super
+      end
+    elsif @attributes.key?(name.to_s)
       @attributes[name.to_s]
     else
       super
