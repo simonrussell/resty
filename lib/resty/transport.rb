@@ -1,10 +1,6 @@
 class Resty::Transport
   
-  def self.load_json(href)
-    JSON.parse(RestClient.get(href))
-  end
-
-  def self.request_json(href, method, body = nil, content_type = nil)
+  def self.request_json(href, method = 'GET', body = nil, content_type = nil)
   
     headers = content_type ? { :content_type => content_type } : nil
     payload = body || ''

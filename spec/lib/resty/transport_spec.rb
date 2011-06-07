@@ -22,6 +22,10 @@ describe Resty::Transport do
       end
     end
 
+    it "should default the method" do
+      Resty::Transport.request_json('http://blah.blah').should == output
+    end
+
     it "should decode json for successful response" do
       Resty::Transport.request_json('http://blah.blah', 'GET').should == output
     end

@@ -73,7 +73,21 @@ describe Resty do
   context "big picture" do
 
     let(:shamrack) { ShamRack.at('company.company').stub }
+    let(:company_info) do
+      {
+        ':href' => 'http://company.company',
+        'name' => 'Fishtech',
+        ':actions' => { 
+          'rename' => {
+            ':href' => 'http://company.company/rename',
+            ':method' => 'POST'
+          }
+        }
+      }
+    end
+    
     before do
+      shamrack.register_resource('/', company_info.to_json, 'application/json')
       shamrack.register_resource('/rename', '')
     end
     
@@ -88,12 +102,6 @@ describe Resty do
         },
         'company' => {
           ':href' => 'http://company.company',
-          ':actions' => { 
-            'rename' => {
-              ':href' => 'http://company.company/rename',
-              ':method' => 'POST'
-            }
-          }
         }
       )
     end
@@ -102,7 +110,10 @@ describe Resty do
       subject.address.street.should == 'Fish St'
     end
     
-        
+    it "should get nested objects" do
+      subject.company.name.should == 'Fishtech'
+    end
+     
     it "should have actions that work" do
       subject.company.rename!
     end

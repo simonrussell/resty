@@ -57,7 +57,7 @@ describe Resty::Attributes do
         }
       end
       subject { Resty::Attributes.new(':href' => output[':href']) }
-      before { Resty::Transport.stub!(:load_json => output) }
+      before { Resty::Transport.stub!(:request_json => output) }
 
       it "should populate from the href" do
         subject['name'].should == 'fred'
