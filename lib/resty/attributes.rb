@@ -31,5 +31,14 @@ class Resty::Attributes
     populate!
     @data
   end
+  
+  def actions
+    unless @actions
+      populate! unless populated?
+      @actions = Resty::Actions.new(@data[':actions'])
+    end
+      
+    @actions
+  end
 
 end

@@ -66,5 +66,10 @@ describe Resty::Attributes do
     
 
   end
+  
+  describe "actions" do
+    subject { Resty::Attributes.new(':actions' => { 'bake' => { } }) }
+    its(:actions) { should be_a(Resty::Actions) }
+  end
 
 end

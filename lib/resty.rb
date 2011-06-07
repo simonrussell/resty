@@ -44,6 +44,6 @@ class Resty
 
 end
 
-%w(attributes transport).each do |f|
+%w(attributes transport actions).each do |f|
   require File.join(File.dirname(__FILE__), 'resty', f)
 end
