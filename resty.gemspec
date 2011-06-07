@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
   s.name = 'resty'
-  s.version = '0.0.2'
+  s.version = '0.0.3'
   s.summary = 'Simple JSON REST API client wrapper'
   
   s.author = 'Simon Russell'
@@ -13,5 +13,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'json', '~> 1.5.1'
 
   s.required_ruby_version = '>= 1.9.2'
+
+  s.files = Dir['lib/**/*.rb'] + Dir['bin/*'] + ['LICENSE']
   
 end
