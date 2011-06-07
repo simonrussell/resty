@@ -72,6 +72,13 @@ describe Resty do
 
   context "big picture" do
 
+    let(:shamrack) { ShamRack.at('company.company').stub }
+    before do
+      shamrack.register_resource('/rename', '')
+    end
+    
+    after { ShamRack.unmount_all }
+
     subject do
       Resty.from(
         ':href' => 'http://blah.blab/bob/123',
@@ -95,7 +102,8 @@ describe Resty do
       subject.address.street.should == 'Fish St'
     end
     
-    xit "should have actions that work" do
+        
+    it "should have actions that work" do
       subject.company.rename!
     end
   end

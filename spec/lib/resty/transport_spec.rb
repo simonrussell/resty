@@ -6,7 +6,7 @@ describe Resty::Transport do
   before { shamrack }
   after { ShamRack.unmount_all }
 
-  describe "::load_json" do
+  describe "::request_json" do
 
     let(:output) do
       {
@@ -17,14 +17,21 @@ describe Resty::Transport do
 
     before do
       shamrack.register_resource('/', output.to_json, 'application/json')
+      shamrack.handle do |request|
+        [201, {'Location' => 'http://blah.blah'}, ['']] if request.path_info == '/redirect'
+      end
     end
 
     it "should decode json for successful response" do
-      Resty::Transport.load_json('http://blah.blah').should == output
+      Resty::Transport.request_json('http://blah.blah', 'GET').should == output
+    end
+
+    it "should return href hash for redirect" do
+      Resty::Transport.request_json('http://blah.blah/redirect', 'GET').should == { ':href' => 'http://blah.blah' }
     end
 
     it "should raise error on not found" do
-      lambda { Resty::Transport.load_json('http://blah.blah/not-exist') }.should raise_error(RestClient::ResourceNotFound)
+      lambda { Resty::Transport.request_json('http://blah.blah/not-exist', 'GET') }.should raise_error(RestClient::ResourceNotFound)
     end
 
   end
