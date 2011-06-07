@@ -18,7 +18,11 @@ href = ARGV.shift
 object = Resty.href(href)
 
 until ARGV.empty?
-  object = object.send(ARGV.first)
+  command = ARGV.shift
+  puts "*** #{object._href} <- #{command}"
+#  json_puts object
+  object = object.send(command)
 end
 
+puts "*** #{object._href}"
 json_puts object
