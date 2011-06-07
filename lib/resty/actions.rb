@@ -17,7 +17,7 @@ class Resty::Actions
       mimetype = nil
     end
     
-    Resty::Transport.request_json(href, method, body, mimetype)
+    Resty.wrap(Resty::Transport.request_json(href, method, body, mimetype))
   end
 
   def exist?(name)

@@ -19,6 +19,11 @@ describe Resty::Actions do
       Resty::Transport.should_receive(:request_json).with('http://blah.blah/123/bake', 'POST', { blah: 'bling' }.to_json, 'application/json')
       subject.perform!('bake', blah: 'bling')
     end
+    
+    it "should wrap the result" do
+      Resty::Transport.stub!(:request_json => { blah: 'bling' })
+      subject.perform!('bake').should be_a(Resty)
+    end
 
   end
 
