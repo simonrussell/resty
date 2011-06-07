@@ -69,6 +69,56 @@ describe Resty do
     end
 
   end
+  
+  describe "::encode_param" do
+  
+    it "should encode strict url-safe" do
+      Base64.should_receive(:urlsafe_encode64).with('123').and_return('456')
+      Resty.encode_param('123').should == '456'
+    end
+
+    it "should encode nil to nil" do
+      Resty.encode_param(nil).should be_nil
+    end
+  
+  end
+
+  describe "::decode_param" do
+  
+    it "should decode strict url-safe" do
+      Base64.should_receive(:urlsafe_decode64).with('456').and_return('123')
+      Resty.decode_param('456').should == '123'
+    end
+
+    it "should decode nil to nil" do
+      Resty.decode_param(nil).should be_nil
+    end
+  
+  end
+  
+  describe "#to_param" do
+    
+    it "should be good for href-present" do
+      href = 'http://fish.fish'
+      Resty.href(href).to_param.should == Resty.encode_param(href)
+    end
+    
+    it "should be nil for href-absent" do
+      Resty.from({}).to_param.should be_nil
+    end
+    
+  end
+  
+  describe "#_href" do
+    it "should be good for href-present" do
+      href = 'http://fish.fish'
+      Resty.href(href)._href.should == href
+    end
+    
+    it "should be nil for href-absent" do
+      Resty.from({})._href.should be_nil
+    end  
+  end
 
   context "big picture" do
 

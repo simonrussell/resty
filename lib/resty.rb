@@ -1,10 +1,15 @@
 require 'rest-client'
 require 'json'
+require 'base64'
 
 class Resty
   
   def initialize(attributes)
     @attributes = attributes
+  end
+
+  def _href
+    @attributes.href
   end
 
   def _populated_data
@@ -13,6 +18,10 @@ class Resty
 
   def respond_to_missing?(name, include_private)
     @attributes.key?(name.to_s)
+  end
+  
+  def to_param
+    Resty.encode_param(_href)
   end
 
   def method_missing(name, *args)
@@ -46,6 +55,14 @@ class Resty
 
   def self.href(href)
     from(':href' => href)
+  end
+
+  def self.encode_param(s)
+    s && Base64.urlsafe_encode64(s.to_s)
+  end
+  
+  def self.decode_param(s)
+    s && Base64.urlsafe_decode64(s.to_s)
   end
 
 end
