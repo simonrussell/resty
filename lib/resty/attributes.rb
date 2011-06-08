@@ -10,12 +10,12 @@ class Resty::Attributes
 
   def key?(name)
     populate! unless populated?
-    @data.key?(name)
+    @data.key?(name) || @data.key?(camelize_key(name))
   end
 
   def [](name)
     populate! unless populated?
-    Resty.wrap(@data[name])
+    Resty.wrap(@data[name] || @data[camelize_key(name)])
   end
 
   def populated?
@@ -39,6 +39,12 @@ class Resty::Attributes
     end
       
     @actions
+  end
+  
+  private
+  
+  def camelize_key(key)
+    key.gsub(/_([a-z])/) { $1.upcase }
   end
 
 end
