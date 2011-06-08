@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
   s.name = 'resty'
-  s.version = '0.0.3'
+  s.version = '0.0.4'
   s.summary = 'Simple JSON REST API client wrapper'
   
   s.author = 'Simon Russell'
