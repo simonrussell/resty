@@ -31,6 +31,8 @@ class Resty
       else
         super
       end
+    elsif name =~ /^(.+)\?$/
+      !!@attributes[$1]
     elsif @attributes.key?(name.to_s)
       @attributes[name.to_s]
     else

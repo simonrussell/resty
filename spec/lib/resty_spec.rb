@@ -25,6 +25,17 @@ describe Resty do
 
   end
   
+  describe "query methods" do
+    
+    subject { Resty.from('fun' => true, 'boring' => false, 'integer' => 1, 'nullish' => nil) }
+    
+    it { subject.fun?.should == true }
+    it { subject.boring?.should == false }
+    it { subject.integer?.should == true }
+    it { subject.nullish?.should == false }
+    
+  end
+  
   describe "action methods" do
   
     subject { Resty.from(':actions' => { 'bake' => { ':href' => 'http://blah.blah/bake', ':method' => 'POST' } }) }
