@@ -41,6 +41,15 @@ describe Resty::Attributes do
     end
 
   end
+  
+  describe "attribute memoization" do
+    
+    subject { Resty::Attributes.new('bob' => { 'fred' => 12 }) }
+    
+    it "should return same wrapped attribute for two gets" do
+      subject['bob'].should eql subject['bob']
+    end
+  end
 
   describe "[]" do
 

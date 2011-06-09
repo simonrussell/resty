@@ -6,16 +6,27 @@ class Resty::Attributes
     @href = data[':href']
     @populated = !@href || data.length > 1    # a hack for now
     @data = data
+    @wrapped = {}
   end
 
   def key?(name)
     populate! unless populated?
-    @data.key?(name) || @data.key?(camelize_key(name))
+    @data.key?(translate_key(name))
+  end
+  
+  def translate_key(name)
+    populate! unless populated?
+    if @data.key?(name)
+      name
+    elsif @data.key?(camelized_name = camelize_key(name))
+      camelized_name
+    end
   end
 
   def [](name)
     populate! unless populated?
-    Resty.wrap(@data[name] || @data[camelize_key(name)])
+    name = translate_key(name)
+    @wrapped[name] ||= Resty.wrap(@data[name])
   end
 
   def populated?
