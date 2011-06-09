@@ -40,6 +40,10 @@ class Resty
     end
   end
 
+  def to_s
+    super.gsub('>', _href ? " #{_href}>" : " no-href>")
+  end
+
   def self.from(data)
     new(Resty::Attributes.new(data))
   end
@@ -70,7 +74,7 @@ class Resty
   def self.from_param(s)
     href(decode_param(s))
   end
-
+  
 end
 
 %w(attributes transport actions).each do |f|

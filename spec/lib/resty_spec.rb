@@ -144,6 +144,17 @@ describe Resty do
     end  
   end
 
+  describe "#to_s" do
+    it "should work for href-present" do
+      r = Resty.href("http://bob.bob")
+      r.to_s.should =~ /^#<Resty:0x[a-f\d]+ #{Regexp.escape(r._href)}>$/
+    end
+    
+    it "should work for nil href" do
+      Resty.from({}).to_s.should =~ /^#<Resty:0x[a-f\d]+ no-href>$/
+    end
+  end
+
   context "big picture" do
 
     let(:shamrack) { ShamRack.at('company.company').stub }
