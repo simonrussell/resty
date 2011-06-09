@@ -66,6 +66,10 @@ class Resty
   def self.decode_param(s)
     s && Base64.urlsafe_decode64(s.to_s)
   end
+  
+  def self.from_param(s)
+    href(decode_param(s))
+  end
 
 end
 

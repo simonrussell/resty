@@ -107,6 +107,19 @@ describe Resty do
   
   end
   
+  describe "::from_param" do
+      
+    it "should decode the param and create a new Resty" do
+      href = "http://bob.bob/"
+      Resty.from_param(Resty.encode_param(href))._href.should == href
+    end
+    
+    it "should return a non-url resty for nil param" do
+      Resty.from_param(nil)._href.should be_nil
+    end
+    
+  end
+  
   describe "#to_param" do
     
     it "should be good for href-present" do
