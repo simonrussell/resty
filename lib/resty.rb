@@ -3,6 +3,7 @@ require 'json'
 require 'base64'
 
 class Resty
+  include Enumerable
   
   def initialize(attributes)
     @attributes = attributes
@@ -22,6 +23,16 @@ class Resty
   
   def to_param
     Resty.encode_param(_href)
+  end
+  
+  def each
+    @attributes.items.each do |x|
+      yield x
+    end
+  end
+  
+  def [](index)
+    @attributes.items[index]
   end
 
   def method_missing(name, *args)

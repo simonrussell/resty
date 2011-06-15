@@ -155,6 +155,45 @@ describe Resty do
     end
   end
 
+  describe "enumerability" do
+
+    context "with :items" do
+      let(:items) { [1,2,3] }
+      subject { Resty.from('fish' => 12, ':items' => items) }
+      
+      it { should be_a(Enumerable) }
+      
+      it "should return the items in order from each" do
+        output = []
+        subject.each { |x| output << x }
+        output.should == items
+      end
+    end
+    
+    context "without :items" do
+      subject { Resty.from('fish' => 12) }
+    
+      it { should be_a(Enumerable) }    # we don't know if it's enumerable until we populate the object
+      
+      it "should not call the block from each" do
+        subject.each { |x| fail "should not get here" }
+      end
+    end
+  
+  end
+  
+  describe "#[]" do
+    
+    let(:items) { stub }
+    subject { Resty.new(stub(:items => items)) }
+    
+    it "should lookup the index in the attributes" do
+      items.should_receive(:[]).with(12).and_return('fishy')
+      subject[12].should == 'fishy'
+    end
+    
+  end
+
   context "big picture" do
 
     let(:shamrack) { ShamRack.at('company.company').stub }

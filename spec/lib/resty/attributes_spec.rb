@@ -51,10 +51,33 @@ describe Resty::Attributes do
     end
   end
 
+  describe "#items" do
+
+    context "with :items" do
+      let(:items) { [1, 2, { 'fish' => 'biscuits' }] }
+      subject { Resty::Attributes.new(':items' => items) }
+      
+      it "should return the wrapped items" do
+        subject.items[0].should == 1
+        subject.items[1].should == 2
+        subject.items[2].should be_a(Resty)
+      end
+    end
+    
+    context "without :items" do
+      subject { Resty::Attributes.new({}) }
+    
+      it "should not call the block from each" do
+        subject.items.should == []
+      end
+    end
+  
+  end
+
   describe "[]" do
 
     context "populated" do
-      subject { Resty::Attributes.new('bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2) }
+      subject { Resty::Attributes.new('bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2, ':items' => [1,2,3]) }
 
       it "should return nil for unknown attribute" do
         subject['fred'].should be_nil

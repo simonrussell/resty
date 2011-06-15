@@ -29,6 +29,11 @@ class Resty::Attributes
     @wrapped[name] ||= Resty.wrap(@data[name])
   end
 
+  def items
+    populate! unless populated?
+    @wrapped[':items'] ||= (@data[':items'] || []).map { |item| Resty.wrap(item) }
+  end
+    
   def populated?
     @populated
   end
@@ -57,5 +62,5 @@ class Resty::Attributes
   def camelize_key(key)
     key.gsub(/_([a-z])/) { $1.upcase }
   end
-
+  
 end
