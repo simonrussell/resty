@@ -1,3 +1,5 @@
 .bundle
 *.gem
 README.html
+doc
+.yardoc

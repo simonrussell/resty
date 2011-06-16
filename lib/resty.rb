@@ -2,29 +2,37 @@ require 'rest-client'
 require 'json'
 require 'base64'
 
+# @author Simon Russell
 class Resty
   include Enumerable
   
+  # @note Generally, use Resty::from instead of Resty::new.
   def initialize(attributes)
     @attributes = attributes
   end
 
+  # @return [String, nil] The URL of the resource, or nil if none present.
   def _href
     @attributes.href
   end
 
+  # The data from the resource; will cause the resource to be loaded if it hasn't already occurred.
+  # @return [Hash] The data from the resource
   def _populated_data
     @attributes.populated_data
   end
 
+  # Make respond_to? return true to the corresponding magic methods added using {#method_missing}.
   def respond_to_missing?(name, include_private)
     @attributes.key?(name.to_s)
   end
   
+  # @return [String, nil] The URL of the resource, encoded for safe insertion into a URL.  Used for Rails routing.
   def to_param
     Resty.encode_param(_href)
   end
   
+  # Iterate through each item in the array; doesn't iterate over keys in the hash.
   def each
     @attributes.items.each do |x|
       yield x
@@ -35,6 +43,31 @@ class Resty
     @attributes.items[index]
   end
 
+  # Resty exposes the values and actions from the resource as methods on the object.
+  #
+  # @example Reading an attribute value
+  #   r = Resty.href('http://fish.fish/123')  # { ':href': 'http://fish.fish/123', 'name': 'Bob' }
+  #   r.name                                  # => "Bob"
+  #
+  # @example Checking a boolean value
+  #   r = Resty.href('http://fish.fish/123')  # { ':href': 'http://fish.fish/123', 'fun': true }
+  #   r.fun?                                  # => true
+  #
+  # @example Calling an action on the resource
+  #   r = Resty.href('http://fish.fish/123')  # { 
+  #                                           #   ':href': 'http://fish.fish/123',
+  #                                           #   ':actions': {
+  #                                           #     'cook': { 
+  #                                           #       ':href': 'http://fish.fish/123/cook'
+  #                                           #       ':method': 'POST'
+  #                                           #     } 
+  #                                           #   }
+  #                                           # }
+  #   r.cook!
+  #
+  # @example Calling an action on the resource with params
+  #   r = Resty.href('http://fish.fish/123')
+  #   r.cook!(style: 'lightly', flavoursomeness: 12)  # this will cause those parameters to be posted with the action
   def method_missing(name, *args)
     if name =~ /^(.+)!$/
       if @attributes.actions.exist?($1)
@@ -55,10 +88,14 @@ class Resty
     super.gsub('>', _href ? " #{_href}>" : " no-href>")
   end
 
+  # @return [Resty] A new Resty constructed from the given hash.
+  # @example
+  #   r = Resty.from('name' => 'Bob')
   def self.from(data)
     new(Resty::Attributes.new(data))
   end
 
+  # @return The input object, or a Resty wrapping if it's a Hash or Array.
   def self.wrap(object)
     case object
     when Hash
@@ -70,18 +107,24 @@ class Resty
     end
   end
 
+  # @return [Resty] A new Resty pointing at the given URL.
+  # @example
+  #   r = Resty.href('http://fish.fish/')
   def self.href(href)
     from(':href' => href)
   end
 
+  # @return [String] The input encoded for safe use in a URL.
   def self.encode_param(s)
     s && Base64.urlsafe_encode64(s.to_s)
   end
   
+  # @return [String] The input (previously encoded using Resty::encode_param) decoded into a string.
   def self.decode_param(s)
     s && Base64.urlsafe_decode64(s.to_s)
   end
   
+  # @return [Resty] A new Resty created from the URL encoded in the input.
   def self.from_param(s)
     href(decode_param(s))
   end
