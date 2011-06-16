@@ -39,12 +39,20 @@ class Resty::Attributes
   end
 
   def populate!
-    @data = Resty::Transport.request_json(@href)
+    new_data = Resty::Transport.request_json(@href)
+    
+    @data = case new_data
+            when Array
+              { ':href' => @href, ':items' => new_data }
+            else
+              new_data
+            end
+            
     @populated = true
   end
 
   def populated_data
-    populate!
+    populate! unless populated?
     @data
   end
   

@@ -120,6 +120,21 @@ describe Resty::Attributes do
       end
     end
     
+    context "unpopulated with array at end" do
+      let(:output) { [1, 2, 3] }
+      let(:href) { 'http://bob.com' }
+      subject { Resty::Attributes.new(':href' => href) }
+      before { Resty::Transport.stub!(:request_json => output) }
+
+      it "should populate from the href" do
+        subject.items.should == [1,2,3]
+      end
+      
+      it "should fill in the href from the original href" do
+        subject.href.should == href
+      end
+    end
+
   end
     
   describe "actions" do
