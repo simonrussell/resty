@@ -1,0 +1,20 @@
+Before 1.0.0
+============
+
+Todo
+----
+
+- proper exception types
+- full :partial handling
+
+Bugs
+----
+
+- respond_to? doesn't return true for xyz? and actions.
+
+
+Ideas
+-----
+
+- [] operator on Resty (to access inconveniently named things)
+- move loading to Resty from Attributes; make more like a page fault
