@@ -4,34 +4,44 @@ class Resty::Attributes
 
   def initialize(data)
     @href = data[':href']
-    @populated = if @href
-                   !data[':partial'] && data.length > 1
-                 else
-                   true
-                 end
+    @fully_populated = if @href
+                         !data[':partial'] && data.length > 1
+                       else
+                         true
+                       end
 
     @data = data
     @wrapped = {}
   end
 
-  def key?(name)
-    populate! unless populated?
-    @data.key?(translate_key(name))
-  end
-  
-  def translate_key(name)
-    populate! unless populated?
-    if @data.key?(name)
-      name
-    elsif @data.key?(camelized_name = camelize_key(name))
-      camelized_name
+  def key?(name)    
+    key_variants(name) do |key|
+      return true
     end
-  end
 
+    unless populated?
+      populate!
+      key_variants(name) do |key|
+        return true
+      end
+    end
+
+    false
+  end
+ 
   def [](name)
-    populate! unless populated?
-    name = translate_key(name)
-    @wrapped[name] ||= Resty.wrap(@data[name])
+    key_variants(name) do |key|
+      return wrap_data(key)
+    end
+
+    unless populated?
+      populate!
+      key_variants(name) do |key|
+        return wrap_data(key)
+      end
+    end
+
+    nil
   end
 
   def items
@@ -39,13 +49,13 @@ class Resty::Attributes
     @wrapped[':items'] ||= (@data[':items'] || []).map { |item| Resty.wrap(item) }
   end
     
-  def populated?
-    @populated
+  def populated?(key = nil)
+    @fully_populated
   end
 
   def populate!
     new_data = Resty::Transport.request_json(@href)
-    
+
     @data = case new_data
             when Array
               { ':href' => @href, ':items' => new_data }
@@ -53,7 +63,8 @@ class Resty::Attributes
               new_data
             end
             
-    @populated = true
+    @fully_populated = true
+    @wrapped = {}
   end
 
   def populated_data
@@ -72,8 +83,19 @@ class Resty::Attributes
   
   private
   
+  def wrap_data(key)
+    @wrapped[key] ||= Resty.wrap(@data[key])
+  end
+
   def camelize_key(key)
     key.gsub(/_([a-z])/) { $1.upcase }
+  end
+
+  def key_variants(name)
+    yield name if @data.key?(name)
+
+    camelized_name = camelize_key(name)
+    yield camelized_name if camelized_name != name && @data.key?(camelized_name)
   end
   
 end

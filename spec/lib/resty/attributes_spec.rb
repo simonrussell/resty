@@ -74,11 +74,10 @@ describe Resty::Attributes do
   
   end
 
-  describe "[]" do
+  context "populated" do
+    subject { Resty::Attributes.new('bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2, ':items' => [1,2,3]) }
 
-    context "populated" do
-      subject { Resty::Attributes.new('bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2, ':items' => [1,2,3]) }
-
+    describe "#[]" do
       it "should return nil for unknown attribute" do
         subject['fred'].should be_nil
       end    
@@ -105,18 +104,47 @@ describe Resty::Attributes do
       end
     end
 
-    context "unpopulated" do
-      let(:output) do
-        {
-          ':href' => 'http://bob.com',
-          'name' => 'fred'
-        }
+    describe "#key?" do
+      it "should return false for unknown attribute" do
+        subject.should_not be_key('fred')
       end
-      subject { Resty::Attributes.new(':href' => output[':href'], 'age' => 900, ':partial' => true) }
-      before { Resty::Transport.stub!(:request_json => output) }
 
+      it "should return known attribute" do
+        subject.should be_key('bob')
+      end    
+
+      it "should pass through camelized names" do
+        subject.should be_key('bobTownNewJersey')
+      end
+      
+      it "should camelize attribute names" do
+        subject.should be_key('bob_town_new_jersey')
+      end
+
+      it "should only camelize if not found" do
+        subject.should be_key('strange_birds')
+      end
+    end
+  end
+
+  context "unpopulated" do
+    let(:output) do
+      {
+        ':href' => 'http://bob.com',
+        'name' => 'fred'
+      }
+    end
+
+    subject { Resty::Attributes.new(':href' => output[':href'], 'age' => 900, ':partial' => true) }
+    before { Resty::Transport.stub!(:request_json => output) }
+
+    describe "#[]" do
       it "should populate from the href" do
         subject['name'].should == 'fred'
+      end
+
+      it "should use the supplied info" do
+        subject['age'].should == 900
       end
       
       it "should call the transport if attribute not present" do
@@ -124,18 +152,40 @@ describe Resty::Attributes do
         subject['name']
       end
 
-      xit "should not call the transport if attribute present" do
+      it "should not call the transport if attribute present" do
         Resty::Transport.should_not_receive(:request_json).with(output[':href'])
         subject['age']
       end
     end
-    
-    context "unpopulated with array at end" do
-      let(:output) { [1, 2, 3] }
-      let(:href) { 'http://bob.com' }
-      subject { Resty::Attributes.new(':href' => href) }
-      before { Resty::Transport.stub!(:request_json => output) }
 
+    describe "#key?" do
+      it "should populate from the href" do
+        subject.should be_key('name')
+      end
+
+      it "should use the supplied info" do
+        subject.should be_key('age')
+      end
+      
+      it "should call the transport if attribute not present" do
+        Resty::Transport.should_receive(:request_json).with(output[':href'])
+        subject.key?('name')
+      end
+
+      it "should not call the transport if attribute present" do
+        Resty::Transport.should_not_receive(:request_json).with(output[':href'])
+        subject.key?('age')
+      end
+    end
+  end
+  
+  context "unpopulated with array at end" do
+    let(:output) { [1, 2, 3] }
+    let(:href) { 'http://bob.com' }
+    subject { Resty::Attributes.new(':href' => href) }
+    before { Resty::Transport.stub!(:request_json => output) }
+
+    describe "#[]" do
       it "should populate from the href" do
         subject.items.should == [1,2,3]
       end
@@ -144,7 +194,6 @@ describe Resty::Attributes do
         subject.href.should == href
       end
     end
-
   end
     
   describe "#populated?" do
