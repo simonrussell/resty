@@ -6,6 +6,8 @@ Todo
 
 - proper exception types
 - full :partial handling
+- to_json
+- more features on command line client
 
 Bugs
 ----
