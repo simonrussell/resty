@@ -112,11 +112,21 @@ describe Resty::Attributes do
           'name' => 'fred'
         }
       end
-      subject { Resty::Attributes.new(':href' => output[':href']) }
+      subject { Resty::Attributes.new(':href' => output[':href'], 'age' => 900, ':partial' => true) }
       before { Resty::Transport.stub!(:request_json => output) }
 
       it "should populate from the href" do
         subject['name'].should == 'fred'
+      end
+      
+      it "should call the transport if attribute not present" do
+        Resty::Transport.should_receive(:request_json).with(output[':href'])
+        subject['name']
+      end
+
+      xit "should not call the transport if attribute present" do
+        Resty::Transport.should_not_receive(:request_json).with(output[':href'])
+        subject['age']
       end
     end
     
@@ -137,6 +147,44 @@ describe Resty::Attributes do
 
   end
     
+  describe "#populated?" do
+  
+    context "href" do
+      context "with full info" do
+        subject { Resty::Attributes.new(':href' => 'http://fish.fish', 'name' => 'wilfred', 'age' => 96) }
+        it { should be_populated }
+      end
+    
+      context "with no info" do
+        subject { Resty::Attributes.new(':href' => 'http://fish.fish') }
+        it { should_not be_populated }
+      end
+
+      context "with partial info" do
+        subject { Resty::Attributes.new(':href' => 'http://fish.fish', 'name' => 'wilfred', ':partial' => true) }
+        it { should_not be_populated }
+      end
+    end
+    
+    context "no href" do
+      context "with full info" do
+        subject { Resty::Attributes.new('name' => 'wilfred', 'age' => 96) }
+        it { should be_populated }
+      end
+    
+      context "with no info" do
+        subject { Resty::Attributes.new({}) }
+        it { should be_populated }
+      end
+
+      context "with partial info (should ignore partial)" do
+        subject { Resty::Attributes.new('name' => 'wilfred', ':partial' => true) }
+        it { should be_populated }
+      end
+    end
+
+  end  
+  
   describe "actions" do
     subject { Resty::Attributes.new(':actions' => { 'bake' => { } }) }
     its(:actions) { should be_a(Resty::Actions) }

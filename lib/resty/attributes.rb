@@ -4,7 +4,12 @@ class Resty::Attributes
 
   def initialize(data)
     @href = data[':href']
-    @populated = !@href || data.length > 1    # a hack for now
+    @populated = if @href
+                   !data[':partial'] && data.length > 1
+                 else
+                   true
+                 end
+
     @data = data
     @wrapped = {}
   end
