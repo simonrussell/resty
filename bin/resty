@@ -21,8 +21,13 @@ until ARGV.empty?
   command = ARGV.shift
   puts "*** #{object._href} <- #{command}"
 #  json_puts object
-  object = object.send(command)
+
+  if command =~ /^\d+$/
+    object = object[command.to_i]
+  else
+    object = object.send(command)
+  end
 end
 
-puts "*** #{object._href}"
+puts "*** #{object._href if object.respond_to?(:_href)}"
 json_puts object
