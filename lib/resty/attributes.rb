@@ -14,13 +14,8 @@ class Resty::Attributes
     @wrapped = {}
   end
 
-  def key?(name)    
-    key_variants(name) do |key|
-      return true
-    end
-
-    unless populated?
-      populate!
+  def key?(name)
+    until_populated do
       key_variants(name) do |key|
         return true
       end
@@ -30,12 +25,7 @@ class Resty::Attributes
   end
  
   def [](name)
-    key_variants(name) do |key|
-      return wrap_data(key)
-    end
-
-    unless populated?
-      populate!
+    until_populated do
       key_variants(name) do |key|
         return wrap_data(key)
       end
@@ -96,6 +86,15 @@ class Resty::Attributes
 
     camelized_name = camelize_key(name)
     yield camelized_name if camelized_name != name && @data.key?(camelized_name)
+  end
+
+  def until_populated
+    yield
+    
+    unless populated?
+      populate!
+      yield
+    end
   end
   
 end
