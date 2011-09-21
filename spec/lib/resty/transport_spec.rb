@@ -6,6 +6,15 @@ describe Resty::Transport do
   before { shamrack }
   after { ShamRack.unmount_all }
 
+  describe "self::default_href_params" do
+    let(:params) { {blah: 'blah'} }
+    after { Resty::Transport.default_href_params = nil }
+    it "should allow set/get" do
+      Resty::Transport.default_href_params = params
+      Resty::Transport.default_href_params.should == params
+    end
+  end
+
   describe "::request_json" do
 
     let(:output) do
@@ -38,6 +47,35 @@ describe Resty::Transport do
       lambda { Resty::Transport.request_json('http://blah.blah/not-exist', 'GET') }.should raise_error(RestClient::ResourceNotFound)
     end
 
+    context "when default href params are set" do
+      let(:default_href_params) { {someparam: 'somevalue'} }
+      before { Resty::Transport.stub(:default_href_params => default_href_params) }
+      subject { Resty::Transport.request_json(url) }
+
+      context "when original href has no params" do
+        let(:url) { 'http://blah.blah' }
+
+        it "should append the default href params" do
+          RestClient::Request.should_receive(:execute).with(hash_including({
+            url: "http://blah.blah?someparam=somevalue"
+          }))
+          subject
+        end
+      end
+
+      context "when original href has params" do
+        let(:url) { 'http://blah.blah?other=params' }
+
+        it "should append the default href params" do
+          RestClient::Request.should_receive(:execute).with(hash_including({
+            url: "http://blah.blah?other=params&someparam=somevalue"
+          }))
+          subject
+        end
+      end
+    end
+
   end
+
 
 end
