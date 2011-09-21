@@ -6,15 +6,6 @@ describe Resty::Transport do
   before { shamrack }
   after { ShamRack.unmount_all }
 
-  describe "self::default_href_params" do
-    let(:params) { {blah: 'blah'} }
-    after { Resty::Transport.default_href_params = nil }
-    it "should allow set/get" do
-      Resty::Transport.default_href_params = params
-      Resty::Transport.default_href_params.should == params
-    end
-  end
-
   describe "::request_json" do
 
     let(:output) do
