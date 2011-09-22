@@ -10,9 +10,9 @@ class Resty::Transport
     payload = body || ''
 
     if default_href_params
-      seperator = (href =~ /\?/ ? '&' : '?')
+      separator = (href =~ /\?/ ? '&' : '?')
       params = default_href_params.to_a.map{|p| p.join('=')}.join('&')
-      href = href + seperator + params
+      href = href + separator + params
     end
   
     response = RestClient::Request.execute(
