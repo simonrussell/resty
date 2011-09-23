@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
   s.name = 'resty'
-  s.version = '0.3.0'
+  s.version = '0.4.0'
   s.summary = 'Simple JSON REST API client wrapper'
   s.description = <<-EOS
                     Resty is designed as a client for a particular type of discoverable REST API; one that returns JSON, and 

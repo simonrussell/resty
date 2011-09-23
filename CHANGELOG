@@ -1,0 +1,4 @@
+0.4.0
+-----
+
+- added default_href_params to Resty::Transport (Dave Lyons)
