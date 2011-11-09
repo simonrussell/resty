@@ -14,8 +14,13 @@ Gem::Specification.new do |s|
   
   s.executables << 'resty'
   
-  s.add_dependency 'rest-client', '~> 1.6.3'
-  s.add_dependency 'json', '~> 1.5'
+  s.add_dependency 'rest-client', '~> 1.6'
+  s.add_dependency 'json', '~> 1'
+
+  s.add_development_dependency 'autotest-standalone'
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'sham_rack'
 
   s.required_ruby_version = '>= 1.9.2'
 
