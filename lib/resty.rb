@@ -43,6 +43,10 @@ class Resty
     @attributes.items[index]
   end
 
+  def can?(action)
+    @attributes.actions.exist?(action.to_s)
+  end
+
   # Resty exposes the values and actions from the resource as methods on the object.
   #
   # @example Reading an attribute value

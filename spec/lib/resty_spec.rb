@@ -226,6 +226,12 @@ describe Resty do
         },
         'company' => {
           ':href' => 'http://company.company',
+        },
+        ':actions' => {
+          'send_message' => {
+            ':href' => 'http://blah.blab/bob/123/messages',
+            ':method' => 'POST'
+          }
         }
       )
     end
@@ -240,6 +246,11 @@ describe Resty do
      
     it "should have actions that work" do
       subject.company.rename!
+    end
+    
+    describe "#can?" do
+      it { should be_can(:send_message) }
+      it { should_not be_can(:other_action) }
     end
   end
 
