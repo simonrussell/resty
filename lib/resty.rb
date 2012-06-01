@@ -16,6 +16,10 @@ class Resty
     @attributes.href
   end
 
+  def _attributes
+    @attributes
+  end
+
   # The data from the resource; will cause the resource to be loaded if it hasn't already occurred.
   # @return [Hash] The data from the resource
   def _populated_data
@@ -92,30 +96,22 @@ class Resty
     super.gsub('>', _href ? " #{_href}>" : " no-href>")
   end
 
+  def self.default_factory
+    @default_factory ||= Resty::Factory.new(Resty::Transport.new)
+  end
+
   # @return [Resty] A new Resty constructed from the given hash.
   # @example
   #   r = Resty.from('name' => 'Bob')
   def self.from(data)
-    new(Resty::Attributes.new(data))
-  end
-
-  # @return The input object, or a Resty wrapping if it's a Hash or Array.
-  def self.wrap(object)
-    case object
-    when Hash
-      from(object)
-    when Array
-      from(':items' => object)
-    else
-      object
-    end
+    default_factory.from(data)
   end
 
   # @return [Resty] A new Resty pointing at the given URL.
   # @example
   #   r = Resty.href('http://fish.fish/')
   def self.href(href)
-    from(':href' => href)
+    default_factory.href(href)
   end
 
   # @return [String] The input encoded for safe use in a URL.
@@ -130,11 +126,11 @@ class Resty
   
   # @return [Resty] A new Resty created from the URL encoded in the input.
   def self.from_param(s)
-    href(decode_param(s))
+    default_factory.from_param(s)
   end
   
 end
 
-%w(attributes transport actions).each do |f|
+%w(attributes transport actions factory).each do |f|
   require File.join(File.dirname(__FILE__), 'resty', f)
 end

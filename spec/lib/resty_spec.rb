@@ -39,15 +39,15 @@ describe Resty do
   describe "action methods" do
   
     subject { Resty.from(':actions' => { 'bake' => { ':href' => 'http://blah.blah/bake', ':method' => 'POST' } }) }
-    before { Resty::Transport.stub(:request_json) }
+    before { Resty.default_factory.transport.stub(:request_json) }
     
     it "should respond to known action" do
-      Resty::Transport.should_receive(:request_json).with('http://blah.blah/bake', 'POST', nil, nil)
+      Resty.default_factory.transport.should_receive(:request_json).with('http://blah.blah/bake', 'POST', nil, nil)
       subject.bake!
     end
     
     it "should respond to known action" do
-      Resty::Transport.should_receive(:request_json).with('http://blah.blah/bake', 'POST', { name: 123 }.to_json, 'application/json')
+      Resty.default_factory.transport.should_receive(:request_json).with('http://blah.blah/bake', 'POST', { name: 123 }.to_json, 'application/json')
       subject.bake!(name: 123)
     end
 
@@ -61,24 +61,6 @@ describe Resty do
     it "should create attributes etc" do
       Resty.from(':href' => 'blah').should be_a(Resty)
     end
-  end
-
-  describe "::wrap" do
-    
-    ["string", 0, nil, true, false].each do |input|
-      it "should return #{input.to_json} as itself" do
-        Resty.wrap(input).should eql(input)
-      end
-    end
-
-    it "should wrap object into a Resty" do
-      Resty.wrap({}).should be_a(Resty)
-    end
-
-    it "should wrap array into a Resty" do
-      Resty.wrap([]).should be_a(Resty)
-    end
-
   end
   
   describe "::encode_param" do

@@ -1,8 +1,11 @@
 class Resty::Attributes
 
   attr_reader :href
-
-  def initialize(data)
+  attr_reader :factory
+  attr_reader :data
+  
+  def initialize(factory, data)
+    @factory = factory
     @href = data[':href']
     @fully_populated = if @href
                          !data[':partial'] && data.length > 1
@@ -36,7 +39,7 @@ class Resty::Attributes
 
   def items
     populate! unless populated?
-    @wrapped[':items'] ||= (@data[':items'] || []).map { |item| Resty.wrap(item) }
+    @wrapped[':items'] ||= (@data[':items'] || []).map { |item| @factory.wrap(item) }
   end
     
   def populated?(key = nil)
@@ -44,7 +47,7 @@ class Resty::Attributes
   end
 
   def populate!
-    new_data = Resty::Transport.request_json(@href)
+    new_data = @factory.transport.request_json(@href)
 
     @data = case new_data
             when Array
@@ -65,7 +68,7 @@ class Resty::Attributes
   def actions
     unless @actions
       populate! unless populated?
-      @actions = Resty::Actions.new(@data[':actions'])
+      @actions = Resty::Actions.new(@factory, @data[':actions'])
     end
       
     @actions
@@ -74,7 +77,7 @@ class Resty::Attributes
   private
   
   def wrap_data(key)
-    @wrapped[key] ||= Resty.wrap(@data[key])
+    @wrapped[key] ||= @factory.wrap(@data[key])
   end
 
   def camelize_key(key)

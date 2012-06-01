@@ -2,23 +2,28 @@ require 'spec_helper'
 
 describe Resty::Attributes do
 
+  let(:transport) { mock('transport') }
+  let(:factory) { Resty::Factory.new(transport) }
+  let(:attributes) { Resty::Attributes.new(factory, data) }
+  
   describe "#href" do
-
+    subject { attributes }
+    
     context "with href supplied" do
-      subject { Resty::Attributes.new(':href' => 'blah') }
+      let(:data) { {':href' => 'blah'} }
       its(:href) { should == 'blah' }
     end
 
     context "without href supplied" do
-      subject { Resty::Attributes.new({}) }
+      let(:data) { {} }
       its(:href) { should be_nil }
     end
 
   end
 
   describe "#key?" do
-
-    subject { Resty::Attributes.new('bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2) }
+    let(:data) { { 'bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2 } }
+    subject { attributes }
 
     it "should return false for unknown attribute" do
       subject.key?('fred').should be_false
@@ -43,8 +48,8 @@ describe Resty::Attributes do
   end
   
   describe "attribute memoization" do
-    
-    subject { Resty::Attributes.new('bob' => { 'fred' => 12 }) }
+    let(:data) { { 'bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2, ':items' => [1,2,3] } }
+    subject { attributes }
     
     it "should return same wrapped attribute for two gets" do
       subject['bob'].should eql subject['bob']
@@ -52,10 +57,11 @@ describe Resty::Attributes do
   end
 
   describe "#items" do
-
+    subject { attributes }
+    
     context "with :items" do
       let(:items) { [1, 2, { 'fish' => 'biscuits' }] }
-      subject { Resty::Attributes.new(':items' => items) }
+      let(:data) { { ':items' => items } }
       
       it "should return the wrapped items" do
         subject.items[0].should == 1
@@ -65,7 +71,7 @@ describe Resty::Attributes do
     end
     
     context "without :items" do
-      subject { Resty::Attributes.new({}) }
+      let(:data) { {} }
     
       it "should not call the block from each" do
         subject.items.should == []
@@ -75,7 +81,8 @@ describe Resty::Attributes do
   end
 
   context "populated" do
-    subject { Resty::Attributes.new('bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2, ':items' => [1,2,3]) }
+    let(:data) { { 'bob' => 'biscuits', 'bobTownNewJersey' => 'bobby', 'strange_birds' => 2, ':items' => [1,2,3] } }
+    subject { attributes }
 
     describe "#[]" do
       it "should return nil for unknown attribute" do
@@ -87,7 +94,7 @@ describe Resty::Attributes do
       end    
 
       it "should wrap the result" do
-        Resty.should_receive(:wrap).with('biscuits')
+        factory.should_receive(:wrap).with('biscuits')
         subject['bob']
       end
 
@@ -135,9 +142,10 @@ describe Resty::Attributes do
       }
     end
 
-    subject { Resty::Attributes.new(':href' => output[':href'], 'age' => 900, ':partial' => true) }
-    before { Resty::Transport.stub!(:request_json => output) }
-
+    let(:transport) { mock('transport', :request_json => output) }
+    let(:data) { { ':href' => output[':href'], 'age' => 900, ':partial' => true } }
+    subject { attributes }
+    
     describe "#[]" do
       it "should populate from the href" do
         subject['name'].should == 'fred'
@@ -148,12 +156,12 @@ describe Resty::Attributes do
       end
       
       it "should call the transport if attribute not present" do
-        Resty::Transport.should_receive(:request_json).with(output[':href'])
+        transport.should_receive(:request_json).with(output[':href'])
         subject['name']
       end
 
       it "should not call the transport if attribute present" do
-        Resty::Transport.should_not_receive(:request_json).with(output[':href'])
+        transport.should_not_receive(:request_json).with(output[':href'])
         subject['age']
       end
     end
@@ -168,12 +176,12 @@ describe Resty::Attributes do
       end
       
       it "should call the transport if attribute not present" do
-        Resty::Transport.should_receive(:request_json).with(output[':href'])
+        transport.should_receive(:request_json).with(output[':href'])
         subject.key?('name')
       end
 
       it "should not call the transport if attribute present" do
-        Resty::Transport.should_not_receive(:request_json).with(output[':href'])
+        transport.should_not_receive(:request_json).with(output[':href'])
         subject.key?('age')
       end
     end
@@ -182,9 +190,11 @@ describe Resty::Attributes do
   context "unpopulated with array at end" do
     let(:output) { [1, 2, 3] }
     let(:href) { 'http://bob.com' }
-    subject { Resty::Attributes.new(':href' => href) }
-    before { Resty::Transport.stub!(:request_json => output) }
+    let(:transport) { mock('transport', :request_json => output) }
+    let(:data) { { ':href' => href } }
 
+    subject { attributes }
+    
     describe "#[]" do
       it "should populate from the href" do
         subject.items.should == [1,2,3]
@@ -197,37 +207,38 @@ describe Resty::Attributes do
   end
     
   describe "#populated?" do
+    subject { attributes }
   
     context "href" do
       context "with full info" do
-        subject { Resty::Attributes.new(':href' => 'http://fish.fish', 'name' => 'wilfred', 'age' => 96) }
+        let(:data) { { ':href' => 'http://fish.fish', 'name' => 'wilfred', 'age' => 96 } }
         it { should be_populated }
       end
     
       context "with no info" do
-        subject { Resty::Attributes.new(':href' => 'http://fish.fish') }
+        let(:data) { { ':href' => 'http://fish.fish' } }
         it { should_not be_populated }
       end
 
       context "with partial info" do
-        subject { Resty::Attributes.new(':href' => 'http://fish.fish', 'name' => 'wilfred', ':partial' => true) }
+        let(:data) { { ':href' => 'http://fish.fish', 'name' => 'wilfred', ':partial' => true } }
         it { should_not be_populated }
       end
     end
     
     context "no href" do
       context "with full info" do
-        subject { Resty::Attributes.new('name' => 'wilfred', 'age' => 96) }
+        let(:data) { { 'name' => 'wilfred', 'age' => 96 } }
         it { should be_populated }
       end
     
       context "with no info" do
-        subject { Resty::Attributes.new({}) }
+        let(:data) { {} }
         it { should be_populated }
       end
 
       context "with partial info (should ignore partial)" do
-        subject { Resty::Attributes.new('name' => 'wilfred', ':partial' => true) }
+        let(:data) { { 'name' => 'wilfred', ':partial' => true } }
         it { should be_populated }
       end
     end
@@ -235,7 +246,9 @@ describe Resty::Attributes do
   end  
   
   describe "actions" do
-    subject { Resty::Attributes.new(':actions' => { 'bake' => { } }) }
+    let(:data) { { ':actions' => { 'bake' => { } } } }
+    subject { attributes }
+    
     its(:actions) { should be_a(Resty::Actions) }
   end
 

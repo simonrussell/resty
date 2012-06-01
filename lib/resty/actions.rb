@@ -1,6 +1,7 @@
 class Resty::Actions
 
-  def initialize(definitions)
+  def initialize(factory, definitions)
+    @factory = factory
     @definitions = definitions || {}
   end
   
@@ -17,7 +18,7 @@ class Resty::Actions
       mimetype = nil
     end
     
-    Resty.wrap(Resty::Transport.request_json(href, method, body, mimetype))
+    @factory.wrap(@factory.transport.request_json(href, method, body, mimetype))
   end
 
   def exist?(name)
