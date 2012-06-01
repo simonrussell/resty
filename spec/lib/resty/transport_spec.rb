@@ -14,6 +14,8 @@ describe Resty::Transport do
         'name' => 'fish'
       }
     end
+    
+    let(:transport) { Resty::Transport.new }
 
     before do
       shamrack.register_resource('/', output.to_json, 'application/json')
@@ -23,25 +25,25 @@ describe Resty::Transport do
     end
 
     it "should default the method" do
-      Resty::Transport.request_json('http://blah.blah').should == output
+      transport.request_json('http://blah.blah').should == output
     end
 
     it "should decode json for successful response" do
-      Resty::Transport.request_json('http://blah.blah', 'GET').should == output
+      transport.request_json('http://blah.blah', 'GET').should == output
     end
 
     it "should return href hash for redirect" do
-      Resty::Transport.request_json('http://blah.blah/redirect', 'GET').should == { ':href' => 'http://blah.blah' }
+      transport.request_json('http://blah.blah/redirect', 'GET').should == { ':href' => 'http://blah.blah' }
     end
 
     it "should raise error on not found" do
-      lambda { Resty::Transport.request_json('http://blah.blah/not-exist', 'GET') }.should raise_error(RestClient::ResourceNotFound)
+      lambda { transport.request_json('http://blah.blah/not-exist', 'GET') }.should raise_error(RestClient::ResourceNotFound)
     end
 
     context "when default href params are set" do
       let(:default_href_params) { {someparam: 'somevalue'} }
-      before { Resty::Transport.stub(:default_href_params => default_href_params) }
-      subject { Resty::Transport.request_json(url) }
+      before { transport.default_href_params = default_href_params }
+      subject { transport.request_json(url) }
 
       context "when original href has no params" do
         let(:url) { 'http://blah.blah' }
@@ -68,5 +70,18 @@ describe Resty::Transport do
 
   end
 
-
+  context "default behaviour through class methods" do
+    
+    it "should reflect request_json through" do
+      Resty::Transport.default.should_receive(:request_json).with(1,2,3).and_return(4)
+      Resty::Transport.request_json(1,2,3).should == 4
+    end
+    
+    it "should reflect default_href_params through" do
+      Resty::Transport.default_href_params = { :a => :b }
+      Resty::Transport.default_href_params.should == { :a => :b }
+      Resty::Transport.default.default_href_params.should == { :a => :b }
+    end
+    
+  end
 end
