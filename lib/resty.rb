@@ -131,6 +131,6 @@ class Resty
   
 end
 
-%w(attributes transport actions factory).each do |f|
+%w(attributes transport actions factory credentials_map).each do |f|
   require File.join(File.dirname(__FILE__), 'resty', f)
 end

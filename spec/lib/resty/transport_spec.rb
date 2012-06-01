@@ -6,6 +6,10 @@ describe Resty::Transport do
   before { shamrack }
   after { ShamRack.unmount_all }
 
+  let(:credentials) { nil }
+  let(:credentials_map) { mock('credentials_map', :find => credentials) }
+  let(:transport) { Resty::Transport.new(credentials_map: credentials_map) }
+
   describe "::request_json" do
 
     let(:output) do
@@ -15,8 +19,6 @@ describe Resty::Transport do
       }
     end
     
-    let(:transport) { Resty::Transport.new }
-
     before do
       shamrack.register_resource('/', output.to_json, 'application/json')
       shamrack.handle do |request|
@@ -68,6 +70,36 @@ describe Resty::Transport do
       end
     end
 
+    describe "using credentials_map" do
+      let(:url) { 'http://blah.blah?other=params' }
+      subject { transport.request_json(url) }
+    
+      context "with no credentials" do
+        it "should send nil username and password" do
+          RestClient::Request.should_receive(:execute).with(hash_including(
+            user: nil,
+            password: nil
+          ))
+          subject
+        end        
+      end
+    
+      context "with matching url" do
+        let(:username) { 'username' }
+        let(:password) { 'fishy' }
+        let(:credentials) { [username, password] }
+        
+        it "should send correct username and password" do
+          RestClient::Request.should_receive(:execute).with(hash_including(
+            user: username,
+            password: password
+          ))
+          subject
+        end        
+      end
+    
+    end
+
   end
 
   context "default behaviour through class methods" do
@@ -84,4 +116,5 @@ describe Resty::Transport do
     end
     
   end
+
 end
